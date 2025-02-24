@@ -617,7 +617,14 @@ app.get("/api/orders", async (req, res) => {
  *** SERVER || DATABASE
  */
 const mongoUrl = process.env.MONGO_URL;
-mongoose.connect(mongoUrl).then(() => {
-  console.log("connected");
-  module.exports = app;
-});
+mongoose
+  .connect(mongoUrl)
+  .then(() => {
+    console.log("connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
+
+// Export the app
+module.exports = app;
