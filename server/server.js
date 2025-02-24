@@ -22,7 +22,7 @@ const swt_secret_key = process.env.SWT_SECRET_KEY;
 
 /** allow requestes from the front web */
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: ["https://outfit-oasis-three.vercel.app", "http://localhost:5173"],
 };
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -30,6 +30,10 @@ app.use(express.json());
 /**
  *** User Authentication
  */
+
+app.get("/", (req, res) => {
+  return res.status(200).json({ message: "Welcome to the server" });
+});
 /** Route to create user */
 app.post("/api/signup", async (req, res) => {
   try {
@@ -615,7 +619,5 @@ app.get("/api/orders", async (req, res) => {
 const mongoUrl = process.env.MONGO_URL;
 mongoose.connect(mongoUrl).then(() => {
   console.log("connected");
-  app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-  });
+  module.exports = app;
 });
