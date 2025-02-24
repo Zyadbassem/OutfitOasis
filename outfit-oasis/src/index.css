@@ -2,13 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
- * {
-  padding: 0;
-  margin: 0;
-  font-family: "Inknut Antiqua", sans-serif;
+* {
+    padding: 0;
+    margin: 0;
+    font-family: "Inknut Antiqua", sans-serif;
 }
+
 body {
-  background-color: black;
-  color: white;
-  overflow-x: hidden;
-} 
+    background: linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(88, 1, 31, 1) 100%
+        )
+        no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    color: white;
+    overflow-x: hidden;
+
+    height: 100vh; /* Adjusts with mobile browser UI */
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+}

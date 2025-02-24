@@ -17,57 +17,60 @@ const orderSchema = mongoose.Schema(
           required: true,
           min: [1, "Quantity must be at least 1"],
         },
+        item_price: {
+          type: Number,
+          required: true,
+          min: [1, "price must be at least 1"],
+        },
       },
     ],
     total_amount: {
       type: Number,
       required: true,
-      min: [0, "total amount cant be negative"]
+      min: [0, "total amount cant be negative"],
+    },
+    first_name: {
+      type: String,
+      required: [true, "please provide us with the first name"],
+      trim: true,
+    },
+    last_name: {
+      type: String,
+      required: [true, "please provide us with the last name"],
+      trim: true,
+    },
+    phone_number: {
+      type: String,
+      required: [true, "please provide us with the user phone number"],
+      match: [/^\+?\d{10,15}$/, "Invalid phone number"],
     },
     address: {
-      country: {
-        type: String,
-        required: [true, "please provide us with the user country"],
-        trim: true
-      },
-      city: {
-        type: String,
-        required: [true, "please provide us with the user city"],
-      },
-      street: {
-        type: String,
-        required: [true, "please provide us with the user street"],
-      },
-      house: {
-        type: String,
-        required: [true, "please provide us with the user house"],
-      },
-      phone_number: {
-        type: String,
-        required: [true, "please provide us with the user phone number"],
-        match: [/^\+?\d{10,15}$/, "Invalid phone number"]
-      },
+      type: String,
+      required: [true, "please provide us with the address"],
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: [true, "please provide us with the city"],
+    },
+    state: {
+      type: String,
+      required: [true, "please provide us with the state"],
+    },
+    country: {
+      type: String,
+      required: [true, "please provide us with the country"],
     },
     delivered: {
       type: Boolean,
       default: false,
     },
-    return_request: {
-      requested: {
-        type: Boolean,
-        default: false,
-      },
-      request_message: {
-        type: String,
-        default: "",
-      },
-    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const Order = mongoose.model("order", orderSchema)
+const Order = mongoose.model("order", orderSchema);
 
-module.exports = Order
+module.exports = Order;

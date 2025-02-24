@@ -14,9 +14,11 @@ const ItemSchema = mongoose.Schema(
       type: Number,
       required: [true, "please enter Item Price"],
     },
-    colors: [{
-        type: String
-    }],
+    colors: [
+      {
+        type: String,
+      },
+    ],
     quantity: {
       type: Number,
       required: [true, "please enter Item quantity"],
@@ -28,16 +30,19 @@ const ItemSchema = mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["tops", "trousers", "shoes"],
+      enum: ["tops", "trousers", "shoes", "adminItem"],
       required: false,
+    },
+    image: {
+      type: String,
+      default: "/assets/testtest.jpeg",
     },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const Item = mongoose.model("Item", ItemSchema)
-
+const Item = mongoose.model("Item", ItemSchema);
 
 module.exports = Item;

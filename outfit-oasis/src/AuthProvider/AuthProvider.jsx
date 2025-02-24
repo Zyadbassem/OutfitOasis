@@ -1,25 +1,25 @@
-import React, { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
+import { backend_url } from "../Helpers/helpers";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(
-    window.localStorage.getItem("token") || null
+    window.localStorage.getItem("token") || null,
   );
   const navigate = useNavigate();
 
-  const loginAction = async (form, setForm, errorRef) => {
+  const loginAction = async (form, setForm, setError) => {
     try {
       if (!form.password || !form.username) {
-        errorRef.current.style.display = "block";
-        errorRef.current.style.color = "red";
-        errorRef.current.innerText = "Please enter the missing field";
+        setError("Please enter the missing field");
         return;
       }
 
-      const response = await fetch("http://localhost:8080/api/signin", {
+      const response = await fetch(`${backend_url}/api/signin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -41,36 +41,101 @@ export const AuthProvider = ({ children }) => {
         setUser(data.userData.username);
         navigate("/"); // Redirect after successful login
       } else {
-        errorRef.current.style.display = "block";
-        errorRef.current.style.color = "red";
-        errorRef.current.innerText = data.message;
+        setError(data.message);
+        setForm({
+          username: "",
+          password: "",
+        });
       }
     } catch (error) {
-      errorRef.current.style.display = "block";
-      errorRef.current.style.color = "red";
-      errorRef.current.innerText = error.message;
+      setError(error.message);
+      setForm({
+        username: "",
+        password: "",
+      });
     }
   };
 
+  const checkoutAction = async (form, setForm, setError) => {
+    if (
+      !form.firstName ||
+      !form.lastName ||
+      !form.phoneNumber ||
+      !form.address ||
+      !form.city ||
+      !form.state ||
+      !form.country
+    ) {
+      setError("Please fill all required fields");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${backend_url}/api/checkout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Checkout failed");
+      }
+
+      navigate("/orders");
+    } catch (error) {
+      setError(error.message);
+      throw error;
+    }
+  };
   const logout = () => {
     setUser(null);
     setToken(null);
-    window.localStorage.removeItem("token"); // Clear token from localStorage
-    navigate("/login"); // Redirect to login after logout
+    window.localStorage.removeItem("token");
+    navigate("/login");
   };
 
+  const checkToken = async (tokentaken) => {
+    if (!tokentaken || tokentaken === null) return false;
+    try {
+      const response = await fetch(`${backend_url}/api/checktoken`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokentaken}`,
+        },
+      });
+
+      if (!response.ok) {
+        logout();
+      }
+
+      const data = await response.json();
+      return data.valid;
+    } catch (error) {
+      console.error("Token check error:", error);
+      logout();
+      return false;
+    }
+  };
   const value = {
     user,
     token,
     loginAction,
-    logout
+    logout,
+    checkToken,
+    checkoutAction,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export const useAuth = () => {

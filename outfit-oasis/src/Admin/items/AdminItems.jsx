@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../AuthProvider/AuthProvider";
 import InputField from "../../Login/InputField/InputField";
+import { backend_url } from "../../Helpers/helpers";
 
 function AdminItems() {
   /** Send the token to make sure the user is an admin */
@@ -21,6 +22,7 @@ function AdminItems() {
   });
 
   const [itemModel, setItemModel] = useState(null);
+  const [itemImage, setItemImage] = useState(null);
 
   /** Handle input change */
   const handleInputChange = (e) => {
@@ -46,13 +48,16 @@ function AdminItems() {
     setItemModel(e.target.files[0]);
   };
 
+  const handleImageChange = (e) => {
+    setItemImage(e.target.files[0]);
+  };
   /** Checking if the user is an admin */
   const checkIfAdmin = () => {
     if (!token) {
       window.location.href = "/login";
     }
     try {
-      fetch("http://localhost:8080/api/checkadmin", {
+      fetch(`${backend_url}/api/checkadmin`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -71,9 +76,8 @@ function AdminItems() {
     }
   };
 
-
   /** Handle form submission */
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("name", form.itemName);
@@ -83,33 +87,33 @@ const handleSubmit = async (e) => {
     formData.append("quantity", form.itemQuantity);
     formData.append("category", form.itemCategory);
     formData.append("modelPath", itemModel);
-
+    formData.append("image", itemImage);
 
     try {
-        fetch("http://localhost:8080/api/additems", {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-        })
-            .then((response) => response.json())
-            .then((data) => {
-              console.log(data);
-                if (data.error) {
-                    errorRef.current.textContent = data.error;
-                    errorRef.current.style.color = "red";
-                    errorRef.current.style.display = "block";
-                } else {
-                    errorRef.current.textContent = "Item added successfully";
-                    errorRef.current.style.display = "block";
-                    errorRef.current.style.color = "green";
-                }
-            });
+      fetch("http://localhost:8080/api/additems", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          if (data.error) {
+            errorRef.current.textContent = data.error;
+            errorRef.current.style.color = "red";
+            errorRef.current.style.display = "block";
+          } else {
+            errorRef.current.textContent = "Item added successfully";
+            errorRef.current.style.display = "block";
+            errorRef.current.style.color = "green";
+          }
+        });
     } catch (error) {
-        console.log(error);
+      console.log(error);
     }
-};
+  };
 
   useEffect(() => {
     checkIfAdmin();
@@ -117,7 +121,7 @@ const handleSubmit = async (e) => {
 
   return (
     <form
-      className=" 
+      className="
         w-full
         max-w-[1300px]
         mx-auto
@@ -130,7 +134,7 @@ const handleSubmit = async (e) => {
         p-6
         mb-11
         lg:mt-28"
-    onSubmit={handleSubmit}
+      onSubmit={handleSubmit}
     >
       <h1 className="text-3xl m-10 font-sans">Add items</h1>
       <InputField
@@ -150,7 +154,9 @@ const handleSubmit = async (e) => {
         value={form.itemPrice}
       />
       <div className="flex flex-col w-[100%] max-w-[400px] mb-0 p-2 gap-3 justify-between">
-        <label htmlFor="itemDescription" className="font-sans">Item Description</label>
+        <label htmlFor="itemDescription" className="font-sans">
+          Item Description
+        </label>
         <textarea
           id="itemDescription"
           name="itemDescription"
@@ -185,7 +191,7 @@ const handleSubmit = async (e) => {
         value={form.itemQuantity}
       />
       <div
-        className="    
+        className="
                     flex
                     flex-col
                     w-[100%]
@@ -216,15 +222,39 @@ const handleSubmit = async (e) => {
           <option value="tops">Tops</option>
           <option value="trousers">Trousers</option>
           <option value="shoes">Shoes</option>
+          <option value="adminItem">admin item</option>
         </select>
       </div>
       <div className="flex flex-col w-[100%] max-w-[400px] mb-0 p-2 gap-3 justify-between">
-        <label htmlFor="itemModel" className="font-sans">Item Model</label>
+        <label htmlFor="itemModel" className="font-sans">
+          Item Model
+        </label>
         <input
           id="itemModel"
           name="itemModel"
           type="file"
           onChange={handleFileChange}
+          className="
+            bg-transparent
+            outline-none
+            px-5
+            py-1
+            border
+            text-sm
+            font-sans
+            rounded-sm
+            border-[#8787875b]"
+        />
+      </div>
+      <div className="flex flex-col w-[100%] max-w-[400px] mb-0 p-2 gap-3 justify-between">
+        <label htmlFor="itemModel" className="font-sans">
+          Item image
+        </label>
+        <input
+          id="itemImage"
+          name="itemImage"
+          type="file"
+          onChange={handleImageChange}
           className="
             bg-transparent
             outline-none

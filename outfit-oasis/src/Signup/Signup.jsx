@@ -1,5 +1,6 @@
 import InputField from "../Login/InputField/InputField";
 import { useRef, useState } from "react";
+import { backend_url } from "../Helpers/helpers";
 function Signup() {
   const [form, setForm] = useState({
     username: "",
@@ -8,7 +9,7 @@ function Signup() {
     passwordCon: "",
   });
 
-  const errorRef = useRef()
+  const errorRef = useRef();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -17,7 +18,6 @@ function Signup() {
       ...prevState,
       [name]: value,
     }));
-    
   };
 
   const handleSignup = async (e) => {
@@ -38,7 +38,7 @@ function Signup() {
       }
 
       /** Case everything good */
-      const response = await fetch("http://localhost:8080/api/signup", {
+      const response = await fetch(`${backend_url}/api/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json", // Set content type
@@ -59,20 +59,20 @@ function Signup() {
           password: "",
           passwordCon: "",
         });
-        errorRef.current.style.display = "block"
-        errorRef.current.style.color = "green"
-        errorRef.current.innerText = "signed in"
+        errorRef.current.style.display = "block";
+        errorRef.current.style.color = "green";
+        errorRef.current.innerText = "signed in";
       } else {
         console.log(data.message);
-        errorRef.current.style.display = "block"
-        errorRef.current.style.color = "red"
-        errorRef.current.innerText = data.message
+        errorRef.current.style.display = "block";
+        errorRef.current.style.color = "red";
+        errorRef.current.innerText = data.message;
       }
     } catch (error) {
       console.log(error);
-        errorRef.current.style.display = "block"
-        errorRef.current.style.color = "red"
-        errorRef.current.innerText = error.message
+      errorRef.current.style.display = "block";
+      errorRef.current.style.color = "red";
+      errorRef.current.innerText = error.message;
     }
   };
 

@@ -1,31 +1,49 @@
-// import "./items.css";
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import ScrollTrigger from "gsap/ScrollTrigger";
+import PropTypes from "prop-types";
+import { useEffect } from "react";
+// GSAP
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-function Items(props) {
-  // GSAP
-  gsap.registerPlugin(useGSAP)
-
+function Items({ modelId, items, collectionName, promotion, link }) {
   // Access item page and the buttonsPage
   const itemPage = useRef();
   const itemsPageRotateable = useRef();
-  const phone = window.innerWidth < 600;
 
   // Ref for dragging the holder and saving the last position
   const [isDragging, setIsDragging] = useState(false);
   const [lastPosition, setLastPosition] = useState(null);
 
+  useEffect(() => {
+    gsap.fromTo(
+      itemPage.current,
+      { opacity: 0 },
+      {
+        opacity: 1,
+        scrollTrigger: {
+          trigger: itemPage.current,
+          start: "top center",
+          end: "top top",
+        },
+        duration: 1,
+      },
+    );
+  }, []);
+
   // handle the click to show the draggable items page
   const handleClick = () => {
     // New Event listener
     window.dispatchEvent(
-      new CustomEvent(`moveModel${props.modelId}`, { detail: { direction: "hello this works" } })
+      new CustomEvent(`moveModel${modelId}`, {
+        detail: { direction: "hello this works" },
+      }),
     );
-     
+
     // set a timeline for animation order
-    const tl = gsap.timeline()
+    const tl = gsap.timeline();
 
     // Animate the itemPage out
     tl.to(itemPage.current, {
@@ -33,15 +51,15 @@ function Items(props) {
       duration: 0.5,
       onComplete: () => {
         itemPage.current.style.display = "none";
-        itemsPageRotateable.current.style.display = "flex"
-      }
+        itemsPageRotateable.current.style.display = "flex";
+      },
     });
-  
+
     // Set initial for itemsPageRotateable
     gsap.set(itemsPageRotateable.current, {
-      opacity: 0
+      opacity: 0,
     });
-  
+
     // Animate the itemsPageRotateable in
     tl.to(itemsPageRotateable.current, {
       opacity: 1,
@@ -49,7 +67,6 @@ function Items(props) {
     });
   };
 
-  
   // handle the user first click (and hold) on the draggable div
   const handleStart = (e) => {
     // Setting isDragging state to true
@@ -65,28 +82,28 @@ function Items(props) {
   const handleMove = (e) => {
     // if the user mouse isn't down
     if (!isDragging) return;
-   
+
     // Get current position
     const currentPosition = e.touches ? e.touches[0].clientX : e.clientX;
-    
+
     // comparing the current position to the last position
     if (lastPosition !== null) {
       const deltaX = currentPosition - lastPosition;
 
       // Calculate dragging factor based on screen width
       const draggingFactor = (currentPosition / window.innerWidth - 0.5) * 2;
-      
+
       // Dispatch event with normalized data
       window.dispatchEvent(
-        new CustomEvent(`dragging${props.modelId}`, {
+        new CustomEvent(`dragging${modelId}`, {
           detail: {
             draggingFactor: Math.min(Math.max(draggingFactor, -1), 1), // Clamp between -1 and 1
-            deltaX
-          }
-        })
+            deltaX,
+          },
+        }),
       );
     }
-    
+
     // setting the last position to the current position so the user continue dragging
     setLastPosition(currentPosition);
   };
@@ -100,24 +117,27 @@ function Items(props) {
   return (
     <>
       <div
+        id={`items${modelId}`}
         className="
         items-div
         h-[83vh]
         w-full
-        mt-[100%]
+        mt-[50%]
         flex
         flex-col
         items-center
         justify-between
-        pb-10 
+        pb-10
         max-w-[1300px]
         mx-auto
         lg:mt-[10%]"
-        id={props.id}
         ref={itemPage}
       >
-        <h1 className="text-4xl font-sans">{props.items}</h1>
-        <button className="explore-button text-[#878787] text-sm" onClick={handleClick}>
+        <h1 className="text-4xl font-sans">{items}</h1>
+        <button
+          className="explore-button text-[#878787] text-sm"
+          onClick={handleClick}
+        >
           click to explore more -&gt;
         </button>
       </div>
@@ -127,20 +147,20 @@ function Items(props) {
         className="
         h-[83vh]
         w-full
-        mt-[100%]
+        mt-[50%]
         flex
         flex-col
         items-center
         justify-between
-        pb-10 
+        pb-10
         max-w-[1350px]
         mx-auto
         lg:mt-[10%]
         lg:flex-row-reverse"
         id="buttons-and-details"
       >
-         <div
-            className="dragging-div
+        <div
+          className="dragging-div
             top-[15%]
             left-0
             right-0
@@ -154,17 +174,18 @@ function Items(props) {
             lg:h-[40%]
             cursor-grab
             active:cursor-grabbing"
-            onMouseDown={handleStart}
-            onMouseMove={handleMove}
-            onMouseUp={handleEnd}
-            onMouseLeave={handleEnd}
-            onTouchStart={handleStart}
-            onTouchMove={handleMove}
-            onTouchEnd={handleEnd}
-            style={{ touchAction: 'none' }} // Prevent scrolling while dragging
-          />
-        <div className="
-        details 
+          onMouseDown={handleStart}
+          onMouseMove={handleMove}
+          onMouseUp={handleEnd}
+          onMouseLeave={handleEnd}
+          onTouchStart={handleStart}
+          onTouchMove={handleMove}
+          onTouchEnd={handleEnd}
+          style={{ touchAction: "none" }} // Prevent scrolling while dragging
+        />
+        <div
+          className="
+        details
         h-auto
         flex
         flex-col
@@ -175,23 +196,30 @@ function Items(props) {
         max-w-[90%]
         lg:w-[40%]
         p-5
-        gap-2">
-          <h2 className="text-xl md:text-xl">Essential Comfort Tee</h2>
+        gap-2"
+        >
+          <h2 className="text-xl md:text-xl">{collectionName}</h2>
           <p className="text-sm text-[#878787] md:text-l md:max-w-[60%] pb-7 max-w-[85%] lg:max-w-none">
-            Experience the perfect blend of comfort and style with our Essential
-            Comfort Tee. Made from 100% soft, breathable cotton, this classic
-            t-shirt offers a relaxed fit, durable stitching, and a versatile
-            design. Whether you're dressing it up or keeping it casual, this tee
-            is a must-have staple for every wardrobe. Available in a variety of
-            colors to match any look.
+            {promotion}
           </p>
-          <Link to="/tops">
-            <button className="bg-white text-black py-3 px-10 rounded-sm">Learn more</button>
+          <Link to={link}>
+            <button className="bg-white text-black py-3 px-10 rounded-sm">
+              Learn more
+            </button>
           </Link>
         </div>
-        </div>
+      </div>
     </>
   );
 }
+
+Items.propTypes = {
+  modelId: PropTypes.number,
+  items: PropTypes.string,
+  collectionName: PropTypes.string,
+  promotion: PropTypes.string,
+  link: PropTypes.string,
+  id: PropTypes.string,
+};
 
 export default Items;

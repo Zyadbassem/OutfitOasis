@@ -1,28 +1,48 @@
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import CustomModel from "./CustomModel";
-function ItemsModels({ handleModel=()=>{} }) {
-    const [modelPaths, setModelPaths] = useState([]);
+import { backend_url } from "../../../Helpers/helpers";
+function ItemsModels({
+  handleModel = () => {},
+  setLoading = () => {},
+  hangerType = "tops",
+}) {
+  const [modelPaths, setModelPaths] = useState([]);
 
-    useEffect(() => {
-        const fetchModelPaths = async () => {
-            try {
-                const response = await fetch("http://localhost:8080/api/modelpaths");
-                const data = await response.json();
-                setModelPaths(data);
-            } catch (error) {
-                console.error("Error fetching models:", error);
-            }
-        };
-        fetchModelPaths();
-    }, []);
+  useEffect(() => {
+    const fetchModelPaths = async () => {
+      try {
+        const response = await fetch(`${backend_url}/api/items/${hangerType}`);
+        const data = await response.json();
+        const paths = data.map((item) => item.modelPath);
+        setModelPaths(paths);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching models:", error);
+      }
+    };
+    fetchModelPaths();
+  }, [hangerType, setLoading]);
 
-    return (
-        <group>
-            {modelPaths.map((model, index) => (
-                <CustomModel key={index} modelPath={`http://localhost:8080${model.modelPath}`} handleModel={handleModel} modelId={index + 1} length={modelPaths.length}/>
-            ))}
-        </group>
-    );
+  return (
+    <group>
+      {modelPaths.map((modelPath, index) => (
+        <CustomModel
+          key={index}
+          modelPath={`${backend_url}${modelPath}`} // Use modelPath directly
+          handleModel={handleModel}
+          modelId={index + 1}
+          length={modelPaths.length}
+        />
+      ))}
+    </group>
+  );
 }
+
+ItemsModels.propTypes = {
+  handleModel: PropTypes.func,
+  setLoading: PropTypes.func,
+  hangerType: PropTypes.string,
+};
 
 export default ItemsModels;
