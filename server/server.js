@@ -15,7 +15,6 @@ require("dotenv").config();
 
 /** Intantianting the app  */
 const app = express();
-const port = 8080;
 
 /** Init secret key for swt */
 const swt_secret_key = process.env.SWT_SECRET_KEY;
@@ -168,7 +167,7 @@ app.get("/api/checkadmin", async (req, res) => {
 /** Add Item */
 
 // Set up multer for file uploads (Admin add items)
-const storage = multer.diskStorage({
+const storage = multer.memoryStorage({
   destination: function (req, file, cb) {
     let path = file.fieldname === "image" ? "assets/images" : "assets/models";
     cb(null, path);
@@ -626,5 +625,12 @@ mongoose
     console.error("MongoDB connection error:", err);
   });
 
-// Export the app
+const port = process.env.PORT || 8080;
+
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
 module.exports = app;
