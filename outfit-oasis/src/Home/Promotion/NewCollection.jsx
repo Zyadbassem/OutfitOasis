@@ -57,7 +57,7 @@ function NewCollection() {
     >
       <Link
         to="/tops"
-        className="bg-[url(assets/promotion1.png)] bg-cover w-[90%] h-[80vh] bg-[60%_center] bg-no-repeat flex items-start justify-end rounded-t"
+        className="bg-[url(promotion1.png)] bg-cover w-[90%] h-[80vh] bg-[60%_center] bg-no-repeat flex items-start justify-end rounded-t"
       >
         <h2 className="max-w-40 p-4 mr-[-15px] text-black font-sans text-xl lg:text-3xl lg:mr-0 lg:max-w-max">
           Explore Our New Collection
