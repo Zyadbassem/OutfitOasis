@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Lights from "./Lights/Lights";
 import { Environment } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
@@ -8,16 +8,42 @@ import PropTypes from "prop-types";
 function Scene({ setLoading }) {
   const threeWorld = useThree();
   const phone = window.innerWidth < 850;
+  const scrollRef = useRef(0);
+  const viewportHeightRef = useRef(window.innerHeight);
+
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY / window.innerHeight;
+    // Get the initial viewport height
+    viewportHeightRef.current = window.innerHeight;
+
+    const handleResize = () => {
+      // Update stored viewport height
+      viewportHeightRef.current = window.innerHeight;
+      // Recalculate position based on current scroll
+      updateCameraPosition(scrollRef.current);
+    };
+
+    const updateCameraPosition = (scrollY) => {
+      // Store the scroll position
+      scrollRef.current = scrollY;
+      // Use the stored viewport height for calculations
+      const scrollPosition = scrollY / viewportHeightRef.current;
       threeWorld.camera.position.y = phone
         ? -7 * scrollPosition
         : -5.5 * scrollPosition;
     };
-    window.addEventListener("scroll", (e) => handleScroll(e));
 
-    return;
+    const handleScroll = () => {
+      updateCameraPosition(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listeners
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
   }, [phone, threeWorld.camera.position]);
 
   return (
