@@ -1,1 +1,1 @@
-export const backend_url = "https://outfit-oasis-server.vercel.app";
+export const backend_url = "http://localhost:8080";
