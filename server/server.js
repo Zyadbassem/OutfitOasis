@@ -1,6 +1,6 @@
 const express = require("express");
 const Item = require("./Models/item.model.js");
-const User = require("./Models/user.mode.js");
+const User = require("./Models/user.mode.js"); // Note: Fix typo in filename
 const Cart = require("./Models/cart.model.js");
 const Order = require("./Models/order.model.js");
 const jwt = require("jsonwebtoken");
@@ -8,21 +8,60 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const multer = require("multer");
-const path = require("path");
 require("dotenv").config();
+const cloudinary = require("cloudinary").v2;
 
-/** Intantianting the app  */
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+/** Instantiating the app */
 const app = express();
 
-/** Init secret key for swt */
-const swt_secret_key = process.env.SWT_SECRET_KEY;
+/** Init secret key for jwt */
+const jwt_secret_key = process.env.SWT_SECRET_KEY; // Note: Consider renaming env var to JWT_SECRET_KEY
 
-/** allow requestes from the front web */
+/** allow requests from the front web */
 const corsOptions = {
   origin: ["https://outfit-oasis-three.vercel.app", "http://localhost:5173"],
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Connect to MongoDB at startup
+let cachedDb = null;
+async function connectToDatabase() {
+  if (cachedDb) {
+    return cachedDb;
+  }
+
+  const mongoUrl = process.env.MONGO_URL;
+  if (!mongoUrl) {
+    throw new Error("MONGO_URL environment variable not set");
+  }
+
+  const client = await mongoose.connect(mongoUrl);
+  cachedDb = client;
+  return client;
+}
+
+// Connect at startup
+connectToDatabase()
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
+
+/**
+ * File Upload Configuration - using memory storage for Vercel
+ */
+const storage = multer.memoryStorage(); // Use memory storage instead of disk storage
+const upload = multer({ storage: storage });
 
 /**
  *** User Authentication
@@ -31,6 +70,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   return res.status(200).json({ message: "Welcome to the server" });
 });
+
 /** Route to create user */
 app.post("/api/signup", async (req, res) => {
   try {
@@ -88,7 +128,7 @@ app.post("/api/signin", async (req, res) => {
 
     /** check if the data is empty */
     if (!username || !password) {
-      res.status(400).json({ message: "please fill the messing fields" });
+      res.status(400).json({ message: "please fill the missing fields" });
       return;
     }
 
@@ -114,7 +154,7 @@ app.post("/api/signin", async (req, res) => {
         isAdmin: user.isAdmin,
         id: user._id,
       },
-      swt_secret_key,
+      jwt_secret_key,
       {
         expiresIn: "1W",
       },
@@ -138,9 +178,9 @@ app.post("/api/checktoken", async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     if (!token) {
-      return res.json({ valid: false, message: "no token recieved" });
+      return res.json({ valid: false, message: "no token received" });
     }
-    const decoded = jwt.verify(token, swt_secret_key);
+    const decoded = jwt.verify(token, jwt_secret_key);
     res.status(200).json({ valid: true, message: "token is valid" });
   } catch (error) {
     res.status(500).json({ valid: false, message: error.message });
@@ -155,28 +195,14 @@ app.post("/api/checktoken", async (req, res) => {
 app.get("/api/checkadmin", async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, swt_secret_key);
+    const decoded = jwt.verify(token, jwt_secret_key);
     res.status(200).json({ isAdmin: decoded.isAdmin });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-/** Add Item */
-
-// Set up multer for file uploads (Admin add items)
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    let path = file.fieldname === "image" ? "assets/images" : "assets/models";
-    cb(null, path);
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage: storage });
-
-// Add item api
+/** Add Item - modified to use cloud storage instead of local files */
 app.post(
   "/api/additems",
   upload.fields([
@@ -187,7 +213,7 @@ app.post(
     try {
       /** Check if the user is not an admin */
       const token = req.headers.authorization.split(" ")[1];
-      const decoded = jwt.verify(token, swt_secret_key);
+      const decoded = jwt.verify(token, jwt_secret_key);
       if (!decoded.isAdmin) {
         res.status(401).json({ error: "You are not an admin" });
         return;
@@ -195,8 +221,7 @@ app.post(
 
       /** Getting the user input */
       const { name, description, price, colors, quantity, category } = req.body;
-      const modelPath = `/assets/models/${req.files.modelPath[0].filename}`;
-      const image = `/assets/images/${req.files.image[0].filename}`;
+
       if (
         !name ||
         !description ||
@@ -204,12 +229,41 @@ app.post(
         !colors ||
         !quantity ||
         !category ||
-        !modelPath ||
-        !image
+        !req.files.modelPath ||
+        !req.files.image
       ) {
         res.status(500).json({ error: "please fill all the fields" });
         return;
       }
+
+      // Upload image to cloudinary
+      const imageResult = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: "outfit-oasis-images" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          },
+        );
+
+        uploadStream.end(req.files.image[0].buffer);
+      });
+
+      // Upload model to cloudinary
+      const modelResult = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: "outfit-oasis-models",
+            resource_type: "raw",
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          },
+        );
+
+        uploadStream.end(req.files.modelPath[0].buffer);
+      });
 
       /**  Save the item in the database */
       const item = await Item.create({
@@ -219,9 +273,10 @@ app.post(
         colors,
         quantity,
         category,
-        modelPath,
-        image,
+        modelPath: modelResult.secure_url,
+        image: imageResult.secure_url,
       });
+
       res.status(200).json({ message: "item added", item });
     } catch (error) {
       console.log(error);
@@ -231,9 +286,9 @@ app.post(
 );
 
 /**
- *** Serve the assets
+ *** Serve the assets - This won't work on Vercel as is
  */
-app.use("/assets", express.static("assets"));
+// app.use("/assets", express.static("assets")); // Not compatible with Vercel
 
 /**
  *** Route to get items based on category
@@ -257,7 +312,7 @@ app.post("/api/addtocart", async (req, res) => {
   try {
     /** User Validation */
     const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, swt_secret_key);
+    const decoded = jwt.verify(token, jwt_secret_key);
 
     /** Get the item and quantity */
     const { itemId, quantity } = req.body;
@@ -318,8 +373,6 @@ app.post("/api/addtocart", async (req, res) => {
 
     /** Send the response */
     res.status(200).json({ message: "Item added to cart" });
-    console.log(cart);
-    console.log(item);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -330,7 +383,7 @@ app.patch("/api/removefromcart", async (req, res) => {
   try {
     /** User Validation */
     const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, swt_secret_key);
+    const decoded = jwt.verify(token, jwt_secret_key);
 
     /** Get the item and quantity */
     const { itemId, quantity } = req.body;
@@ -359,7 +412,6 @@ app.patch("/api/removefromcart", async (req, res) => {
     /** add to cart */
     const cart = await Cart.findOne({ userId: decoded.id });
     if (!cart) {
-      console.log(decoded);
       res.status(404).json({ message: "Cart not found" });
       return;
     }
@@ -382,8 +434,6 @@ app.patch("/api/removefromcart", async (req, res) => {
 
     /** Send the response */
     res.status(200).json({ message: "Item removed from cart" });
-    console.log(cart);
-    console.log(item);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -394,7 +444,7 @@ app.get("/api/getcart", async (req, res) => {
   try {
     /** User Validation */
     const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, swt_secret_key);
+    const decoded = jwt.verify(token, jwt_secret_key);
 
     /** Check the user */
     if (!decoded) {
@@ -454,7 +504,7 @@ app.put("/api/cartQuantityChange", async (req, res) => {
 
     // Verify the user token
     const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, swt_secret_key);
+    const decoded = jwt.verify(token, jwt_secret_key);
     if (!decoded) {
       return res.status(401).json({ message: "Not authorized" });
     }
@@ -538,7 +588,7 @@ app.post("/api/checkout", async (req, res) => {
       return res.status(401).json({ message: "Authorization token missing" });
     }
     const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, swt_secret_key);
+    const decoded = jwt.verify(token, jwt_secret_key);
     if (!decoded) return res.status(401).json({ message: "Not authorized" });
 
     /** Get the Cart */
@@ -596,13 +646,13 @@ app.get("/api/orders", async (req, res) => {
       return res.status(401).json({ message: "Authorization token missing" });
     }
     const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, swt_secret_key);
+    const decoded = jwt.verify(token, jwt_secret_key);
     if (!decoded) return res.status(401).json({ message: "Not authorized" });
 
     /** Get the user orders */
     const orders = await Order.find({ user_id: decoded.id });
     if (!orders) return res.status(404).json({ message: "user got no orders" });
-    console.log(orders);
+
     /** Passing the orders */
     return res.status(200).json(orders);
   } catch (error) {
@@ -610,25 +660,5 @@ app.get("/api/orders", async (req, res) => {
   }
 });
 
-/**
- *** SERVER || DATABASE
- */
-const mongoUrl = process.env.MONGO_URL;
-mongoose
-  .connect(mongoUrl)
-  .then(() => {
-    console.log("connected to MongoDB");
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error:", err);
-  });
-
-const port = process.env.PORT || 8080;
-
-if (require.main === module) {
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
-}
-
+// Export the Express API for Vercel
 module.exports = app;
