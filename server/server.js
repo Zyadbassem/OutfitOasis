@@ -165,7 +165,7 @@ app.get("/api/checkadmin", async (req, res) => {
 /** Add Item */
 
 // Set up multer for file uploads (Admin add items)
-const storage = multer.memoryStorage({
+const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     let path = file.fieldname === "image" ? "assets/images" : "assets/models";
     cb(null, path);
