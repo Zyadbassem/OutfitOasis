@@ -19,7 +19,11 @@ const swt_secret_key = process.env.SWT_SECRET_KEY;
 
 /** allow requestes from the front web */
 const corsOptions = {
-  origin: ["https://outfit-oasis-three.vercel.app", "http://localhost:5173"],
+  origin: [
+    "https://outfit-oasis-three.vercel.app",
+    "http://localhost:5173",
+    "https://outfitoasis-production-c9e3.up.railway.app",
+  ],
 };
 app.use(cors(corsOptions));
 app.use(express.json());
