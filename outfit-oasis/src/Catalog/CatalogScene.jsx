@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import CatalogModel from "./CatalogModel";
 import { useThree } from "@react-three/fiber";
 import { backend_url } from "../Helpers/helpers";
@@ -6,6 +6,10 @@ import PropTypes from "prop-types";
 
 function CatalogScene({ setLoading, type }) {
   const [models, setModels] = useState([]);
+  const threeWorld = useThree();
+  const phone = window.innerWidth < 850;
+  const scrollRef = useRef(0);
+  const viewportHeightRef = useRef(window.innerHeight);
 
   const fetchModels = async () => {
     try {
@@ -22,21 +26,42 @@ function CatalogScene({ setLoading, type }) {
     }
   };
 
-  const threeWorld = useThree();
-  const phone = window.innerWidth < 850;
   useEffect(() => {
     fetchModels();
 
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY / window.innerHeight;
+    // Get initial viewport height
+    viewportHeightRef.current = window.innerHeight;
+
+    const handleResize = () => {
+      // Update stored viewport height
+      viewportHeightRef.current = window.innerHeight;
+      // Recalculate position based on current scroll
+      updateCameraPosition(scrollRef.current);
+    };
+
+    const updateCameraPosition = (scrollY) => {
+      // Store the scroll position
+      scrollRef.current = scrollY;
+      // Use the stored viewport height for calculations
+      const scrollPosition = scrollY / viewportHeightRef.current;
       threeWorld.camera.position.y = phone
         ? -7 * scrollPosition
         : -5.5 * scrollPosition;
     };
-    window.addEventListener("scroll", (e) => handleScroll(e));
 
-    return window.removeEventListener("scroll", (e) => handleScroll(e));
-  }, [type]);
+    const handleScroll = () => {
+      updateCameraPosition(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listeners
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [type, phone, threeWorld.camera.position]);
 
   return (
     <>
