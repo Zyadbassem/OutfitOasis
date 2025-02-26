@@ -99,7 +99,7 @@ function CatalogCard({
   return (
     <section
       id={`card${id}`}
-      className="w-full max-w-[1300px] mx-auto flex mt-[20%] border-x-0  p-6 lg:mt-16 h-[90vh] flex-col-reverse items-center lg:h-[90vh] lg:p-0 lg:mb-0 lg:justify-between lg:items-center lg:flex-row"
+      className="w-full max-w-[1300px] mx-auto flex mt-[20%] border-x-0  p-6 lg:mt-16 h-[90svh] flex-col-reverse items-center lg:h-[90svh] lg:p-0 lg:mb-0 lg:justify-between lg:items-center lg:flex-row"
     >
       {error.message ? (
         <PopUpHelper message={error.message} error={error.error} />

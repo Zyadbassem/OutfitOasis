@@ -43,7 +43,7 @@ function Welcome() {
                 w-full
                 max-w-[1300px]
                 mx-auto
-                h-[80vh]
+                h-[80svh]
                 flex
                 mt-[20%]
                 border-x-0
@@ -62,7 +62,7 @@ function Welcome() {
                 flex-col
                 items-start
                 justify-start
-                h-[50vh]
+                h-[50svh]
                 w-[100%]
                 mx-auto
                 lg:w-auto

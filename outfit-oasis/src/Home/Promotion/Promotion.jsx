@@ -2,7 +2,7 @@ import PromotionCard from "./PromotionCard";
 
 function Promotion() {
   return (
-    <div className="min-h-[90vh] mt-[100px] max-w-[1300px] mx-auto flex flex-col lg:flex-row items-center mb-[100px]">
+    <div className="min-h-[90svh] mt-[100px] max-w-[1300px] mx-auto flex flex-col lg:flex-row items-center mb-[100px]">
       <h2 className="text-6xl/relaxed line text-center lg:max-w-[45%] lg:text-6xl/relaxed font-sans m-3">
         What People Say About Us !?
       </h2>

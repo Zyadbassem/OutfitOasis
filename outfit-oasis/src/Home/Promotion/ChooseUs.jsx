@@ -25,7 +25,7 @@ function ChooseUs() {
 
   return (
     <div
-      className="[90vh] mt-[100px] max-w-[1300px] mx-auto flex flex-col lg:flex-row items-center mb-[100px] justify-between"
+      className="[90svh] mt-[100px] max-w-[1300px] mx-auto flex flex-col lg:flex-row items-center mb-[100px] justify-between"
       ref={pageRef}
     >
       <h3 className="mx-auto text-center text-6xl font-sans mb-10">

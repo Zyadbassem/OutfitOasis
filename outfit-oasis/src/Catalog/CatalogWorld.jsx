@@ -11,7 +11,7 @@ function CatalogWorld({ setLoading, type }) {
       shadows
       style={{
         width: "100vw",
-        height: "100vh",
+        height: "100svh",
         position: "fixed",
         top: 0,
         zIndex: -1,

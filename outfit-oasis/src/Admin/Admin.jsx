@@ -32,7 +32,7 @@ function Admin() {
     validateAdmin();
   }, []);
   return (
-    <div className="mt-[30%] lg:mt-[200px] h-[50vh] w-full max-w-[1300px] mx-auto flex flex-col items-center justify-center">
+    <div className="mt-[30%] lg:mt-[200px] h-[50svh] w-full max-w-[1300px] mx-auto flex flex-col items-center justify-center">
       <Link to="items" className="m-7">
         <span className="px-16 py-2 border border-[#b4b0b0] ">Items</span>
       </Link>
