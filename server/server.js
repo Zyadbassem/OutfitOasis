@@ -23,6 +23,7 @@ const corsOptions = {
     "https://outfit-oasis-three.vercel.app",
     "http://localhost:5173",
     "https://outfitoasis-production-c9e3.up.railway.app",
+    "http://192.168.1.5:5173",
   ],
 };
 app.use(cors(corsOptions));

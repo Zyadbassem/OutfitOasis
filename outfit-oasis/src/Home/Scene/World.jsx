@@ -14,6 +14,13 @@ function World({ setLoading }) {
         height: "100svh",
         position: "fixed",
         top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        marginLeft: "auto",
+        marginRight: "auto",
+        marginTop: "auto",
+        marginBottom: "auto",
         zIndex: -1,
       }}
       camera={{
