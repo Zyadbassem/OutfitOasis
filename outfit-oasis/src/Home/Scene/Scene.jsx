@@ -9,27 +9,17 @@ function Scene({ setLoading }) {
   const threeWorld = useThree();
   const phone = window.innerWidth < 850;
   const scrollRef = useRef(0);
-  const viewportHeightRef = useRef(window.innerHeight);
+  const viewportHeightRef = window.visualViewport.height;
 
   useEffect(() => {
-    // Get the initial viewport height
-    viewportHeightRef.current = window.innerHeight;
-
-    const handleResize = () => {
-      // Update stored viewport height
-      viewportHeightRef.current = window.innerHeight;
-      // Recalculate position based on current scroll
-      updateCameraPosition(scrollRef.current);
-    };
-
     const updateCameraPosition = (scrollY) => {
       // Store the scroll position
       scrollRef.current = scrollY;
       // Use the stored viewport height for calculations
-      const scrollPosition = scrollY / viewportHeightRef.current;
+      const scrollPosition = scrollY / viewportHeightRef;
       threeWorld.camera.position.y = phone
-        ? -7 * scrollPosition
-        : -5.5 * scrollPosition;
+        ? -5.5 * scrollPosition
+        : -4.5 * scrollPosition;
     };
 
     const handleScroll = () => {
@@ -37,12 +27,12 @@ function Scene({ setLoading }) {
     };
 
     window.addEventListener("scroll", handleScroll);
-    window.addEventListener("resize", handleResize);
+    // window.addEventListener("resize", handleResize);
 
     // Cleanup event listeners
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleResize);
+      // window.removeEventListener("resize", handleResize);
     };
   }, [phone, threeWorld.camera.position]);
 

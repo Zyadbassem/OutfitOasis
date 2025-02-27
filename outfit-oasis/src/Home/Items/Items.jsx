@@ -120,7 +120,7 @@ function Items({ modelId, items, collectionName, promotion, link }) {
         id={`items${modelId}`}
         className="
         items-div
-        h-[83vh]
+        h-[95svh]
         w-full
         mt-[50%]
         flex
@@ -145,7 +145,7 @@ function Items({ modelId, items, collectionName, promotion, link }) {
         style={{ display: "none" }}
         ref={itemsPageRotateable}
         className="
-        h-[83vh]
+        h-[95svh]
         w-full
         mt-[50%]
         flex

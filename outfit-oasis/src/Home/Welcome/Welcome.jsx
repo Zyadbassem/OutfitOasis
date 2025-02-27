@@ -43,7 +43,7 @@ function Welcome() {
                 w-full
                 max-w-[1300px]
                 mx-auto
-                h-[80svh]
+                h-[100svh]
                 flex
                 mt-[20%]
                 border-x-0

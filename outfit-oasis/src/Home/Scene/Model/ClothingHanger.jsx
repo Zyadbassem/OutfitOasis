@@ -45,7 +45,7 @@ function ClothingHanger({
 
     /** Handling First Enteraction */
     const handleMovement = () => {
-      const factorForPhoneHeight = window.innerHeight / 460;
+      const factorForPhoneHeight = window.visualViewport.height / 460;
       phone
         ? gsap.to(clothingHangerRef.current.position, {
             y: clothingHangerRef.current.position.y + factorForPhoneHeight,

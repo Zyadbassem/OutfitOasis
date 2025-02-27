@@ -9,7 +9,7 @@ function CatalogScene({ setLoading, type }) {
   const threeWorld = useThree();
   const phone = window.innerWidth < 850;
   const scrollRef = useRef(0);
-  const viewportHeightRef = useRef(window.innerHeight);
+  const viewportHeightRef = window.visualViewport.height;
 
   const fetchModels = async () => {
     try {
@@ -28,22 +28,11 @@ function CatalogScene({ setLoading, type }) {
 
   useEffect(() => {
     fetchModels();
-
-    // Get initial viewport height
-    viewportHeightRef.current = window.innerHeight;
-
-    const handleResize = () => {
-      // Update stored viewport height
-      viewportHeightRef.current = window.innerHeight;
-      // Recalculate position based on current scroll
-      updateCameraPosition(scrollRef.current);
-    };
-
-    const updateCameraPosition = (scrollY) => {
+    const updateCameraPosition = () => {
       // Store the scroll position
       scrollRef.current = scrollY;
       // Use the stored viewport height for calculations
-      const scrollPosition = scrollY / viewportHeightRef.current;
+      const scrollPosition = scrollY / viewportHeightRef;
       threeWorld.camera.position.y = phone
         ? -7 * scrollPosition
         : -5.5 * scrollPosition;
@@ -54,12 +43,10 @@ function CatalogScene({ setLoading, type }) {
     };
 
     window.addEventListener("scroll", handleScroll);
-    window.addEventListener("resize", handleResize);
 
     // Cleanup event listeners
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleResize);
     };
   }, [type, phone, threeWorld.camera.position]);
 
@@ -68,7 +55,7 @@ function CatalogScene({ setLoading, type }) {
       {models.map((model, index) => (
         <CatalogModel
           key={index}
-          modelPath={`http://localhost:8080${model.modelPath}`}
+          modelPath={`${backend_url}${model.modelPath}`}
           modelId={model.id}
           length={models.length}
           order={index}
