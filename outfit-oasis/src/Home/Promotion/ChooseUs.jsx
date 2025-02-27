@@ -34,7 +34,7 @@ function ChooseUs() {
       <ul className="lg:w-[50%] flex flex-col gap-4">
         <li className="m-5 flex flex-col gap-5">
           <h4 className="font-sans text-4xl">Premium Quality</h4>
-          <p className="font-sans text-l text-gray-500">
+          <p className="font-sans text-l text-[#c9c9c9]">
             We believe that fashion should not only look good but also feel
             good. That’s why all our clothing is made from premium quality
             fabrics that are soft, durable, and comfortable. We meticulously
@@ -45,7 +45,7 @@ function ChooseUs() {
         </li>
         <li className="m-5 flex flex-col gap-5">
           <h4 className="font-sans text-4xl">Affordable Fashion</h4>
-          <p className="font-sans text-l text-gray-500">
+          <p className="font-sans text-l text-[#c9c9c9]">
             We believe that fashion should be accessible to all. Our competitive
             pricing ensures you don’t have to break the bank to stay stylish. By
             offering affordable fashion without compromising on quality, we make
@@ -55,7 +55,7 @@ function ChooseUs() {
         </li>
         <li className="m-5 flex flex-col gap-5">
           <h4 className="font-sans text-4xl">Customer Support</h4>
-          <p className="font-sans text-l text-gray-500">
+          <p className="font-sans text-l text-[#c9c9c9]">
             Your satisfaction is our top priority. Our dedicated customer
             support team is always ready to help with any questions or concerns
             you may have. We provide quick responses, hassle-free returns, and

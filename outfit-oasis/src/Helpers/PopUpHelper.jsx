@@ -11,7 +11,7 @@ function PopUpHelper({ error = true, message = "no error" }) {
       border-b-2
       ${error ? "border-[#ef5350]" : "border-[#355E3B]"}
       fixed
-      top-[10%]
+      top-[15%]
       w-[30%]
       min-w-80
       left-0

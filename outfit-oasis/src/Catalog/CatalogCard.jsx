@@ -109,7 +109,7 @@ function CatalogCard({
         ref={cardRef}
       >
         <h2 className="text-l lg:text-2xl">{name}</h2>
-        <p className="text-sm text-[#878787] lg:text-sm">{description}</p>
+        <p className="text-sm text-[#c9c9c9] lg:text-sm">{description}</p>
         <span className="mr-auto mt-4 text-xl">{price}$</span>
         <button
           className="bg-white text-black py-3 px-10 rounded-sm w-[100%]"

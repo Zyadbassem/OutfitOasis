@@ -57,7 +57,7 @@ function Welcome() {
         ref={sectionRef}
         className="
                 welcome-right-section
-                mt-12
+                mt-0
                 flex
                 flex-col
                 items-start
@@ -71,10 +71,10 @@ function Welcome() {
                 lg:mt-20
                 lg:max-w-[50%]"
       >
-        <h2 className="text-xl mb-7 sm:text-3xl">
+        <h2 className="text-l mb-7 sm:text-3xl">
           EXPLORE THE BEST ONLINE STORE
         </h2>
-        <p className="text-[12px] text-[#878787] max-w-72 font-thin sm:text-[18px] sm:max-w-[70%] lg:text-[15px] lg:max-w-max">
+        <p className="text-[10px] text-[#c9c9c9] max-w-72 font-thin sm:text-[18px] sm:max-w-[70%] lg:text-[15px] lg:max-w-max">
           Step into the ultimate destination for fashion lovers with our online
           clothing store! Discover a curated collection of stylish apparel for
           every occasion, from casual wear to formal outfits that make a
