@@ -14,7 +14,7 @@ function CatalogModel({ modelId, modelPath, order }) {
   const handlePosition = () => {
     return {
       x: phone ? 0 : 2,
-      y: phone ? -order * 6 + 1 : -order * 5.5,
+      y: phone ? -order * 6.5 + 1 : -order * 5.5,
       z: phone ? 3 : 0,
     };
   };
