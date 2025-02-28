@@ -121,6 +121,7 @@ function Items({ modelId, items, collectionName, promotion, link }) {
         className="
         items-div
         h-[95svh]
+        lg:h-[90svh]
         w-full
         mt-[50%]
         flex

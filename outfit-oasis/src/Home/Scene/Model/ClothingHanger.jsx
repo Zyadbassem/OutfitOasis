@@ -39,7 +39,11 @@ function ClothingHanger({
     const positionHandler = () => {
       const position = phone
         ? { x: 0, y: hangerId == 1 ? -8 : hangerId == 2 ? -15.5 : -30, z: 0 }
-        : { x: 0, y: hangerId == 1 ? -6.5 : hangerId == 2 ? -12 : -20, z: -2 };
+        : {
+            x: 0,
+            y: hangerId == 1 ? -6.5 : hangerId == 2 ? -11.5 : -20,
+            z: -2,
+          };
       return position;
     };
 
