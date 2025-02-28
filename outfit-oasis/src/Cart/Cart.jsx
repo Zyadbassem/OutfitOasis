@@ -119,7 +119,7 @@ function Cart() {
           price={item.item.price}
           totalprice={item.priceForAllItemQuantity}
           quantity={item.quantity}
-          imageSrc={`http://localhost:8080${item.item.image}`}
+          imageSrc={`${backend_url}${item.item.image}`}
           handleQuantityChange={handleQuantityChange}
         />
       ))}
